@@ -35,7 +35,7 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="MySocket.cpp">
+    <ClCompile Include="MySocketClient.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\socket\data_socket.cc">

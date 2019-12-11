@@ -1,5 +1,4 @@
 *.sdf
 *.suo
 *.opensdf
-/MySocket/Debug
-/MySocket/MySocket/Debug
+Debug

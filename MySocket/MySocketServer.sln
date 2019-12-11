@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MySocket", "MySocket\MySocket.vcxproj", "{3217ECB5-1665-4865-9F54-62FDBF3BE080}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MySocketServer", "MySocketServer\MySocketServer.vcxproj", "{3217ECB5-1665-4865-9F54-62FDBF3BE080}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
