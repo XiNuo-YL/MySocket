@@ -48,7 +48,7 @@ void ListenInternal(ListeningSocket& listener) {
 
 unsigned __stdcall ListenThread(void * pParam) {
 
-  int port = 8990;
+  int port = FILE_SOCKET_PORT;
   ListeningSocket listener;
   if (!listener.Create()) {
     printf("Failed to create server socket\n");

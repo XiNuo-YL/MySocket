@@ -290,3 +290,7 @@ DataSocket* ListeningSocket::Accept() const {
 
   return new DataSocket(client);
 }
+
+DataSocket* ConnectSocket::Connect(const char* ip, unsigned short port) {
+  return nullptr;
+}

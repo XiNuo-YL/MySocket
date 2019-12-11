@@ -49,6 +49,7 @@ class SocketBase {
   NativeSocket socket_;
 };
 
+#define FILE_SOCKET_PORT      8990
 class FileSocket : public SocketBase {
   explicit FileSocket(NativeSocket socket)
       : SocketBase(socket){}
@@ -152,6 +153,15 @@ class ListeningSocket : public SocketBase {
 
   bool Listen(unsigned short port);
   DataSocket* Accept() const;
+};
+
+// The client socket.  Connect server and generates DataSocket instances
+// for each new connection.
+class ConnectSocket : public SocketBase {
+ public:
+  ConnectSocket() {}
+
+  DataSocket* Connect(const char* ip, unsigned short port);
 };
 
 #endif  // EXAMPLES_PEERCONNECTION_SERVER_DATA_SOCKET_H_
