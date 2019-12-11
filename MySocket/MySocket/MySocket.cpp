@@ -2,7 +2,7 @@
 //
 
 #include "stdafx.h"
-#include "socket/data_socket.h"
+#include "../socket/data_socket.h"
 
 #include <conio.h> // getch
 #include <process.h> // _beginthreadex

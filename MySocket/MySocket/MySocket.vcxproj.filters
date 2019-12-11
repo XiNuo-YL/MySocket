@@ -27,7 +27,7 @@
     <ClInclude Include="targetver.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="socket\data_socket.h">
+    <ClInclude Include="..\socket\data_socket.h">
       <Filter>socket</Filter>
     </ClInclude>
   </ItemGroup>
@@ -38,7 +38,7 @@
     <ClCompile Include="MySocket.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="socket\data_socket.cc">
+    <ClCompile Include="..\socket\data_socket.cc">
       <Filter>socket</Filter>
     </ClCompile>
   </ItemGroup>
