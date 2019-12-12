@@ -6,9 +6,10 @@
 
 #include <conio.h> // getch
 #include <process.h> // _beginthreadex
+#include <assert.h>
 
 #include <vector>
-typedef std::vector<DataSocket*> SocketArray;
+typedef std::vector<FileSocket*> SocketArray;
 static const size_t kMaxConnections = (FD_SETSIZE - 2);
 
 bool running = true;
@@ -29,8 +30,30 @@ void ListenInternal(ListeningSocket& listener) {
       break;
     }
 
+    for (SocketArray::iterator i = sockets.begin(); i != sockets.end(); ++i) {
+      FileSocket* s = *i;
+      bool socket_done = true;
+      if (FD_ISSET(s->socket(), &socket_set)) {
+        if (s->OnDataAvailable(&socket_done)) {
+          
+        }
+      } else {
+        socket_done = false;
+      }
+
+      if (socket_done) {
+        printf("Disconnecting socket\n");
+        assert(s->valid());  // Close must not have been called yet.
+        FD_CLR(s->socket(), &socket_set);
+        delete (*i);
+        i = sockets.erase(i);
+        if (i == sockets.end())
+          break;
+      }
+    }
+
     if (FD_ISSET(listener.socket(), &socket_set)) {
-      DataSocket* s = listener.Accept();
+      FileSocket* s = listener.Accept();
       if (sockets.size() >= kMaxConnections) {
         delete s;  // sorry, that's all we can take.
         printf("Connection limit reached   kMaxConnections:%d\n", kMaxConnections);

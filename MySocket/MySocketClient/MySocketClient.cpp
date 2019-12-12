@@ -4,85 +4,55 @@
 #include "stdafx.h"
 #include "../socket/data_socket.h"
 
-#include <conio.h> // getch
-#include <process.h> // _beginthreadex
-
-#include <vector>
-typedef std::vector<DataSocket*> SocketArray;
-static const size_t kMaxConnections = (FD_SETSIZE - 2);
-
-bool running = true;
-
-void ListenInternal(ListeningSocket& listener) {
-  SocketArray sockets;
-
-  while (running) {
-    fd_set socket_set;
-    FD_ZERO(&socket_set);
-    if (listener.valid())
-      FD_SET(listener.socket(), &socket_set);
-    for (SocketArray::iterator i = sockets.begin(); i != sockets.end(); ++i)
-      FD_SET((*i)->socket(), &socket_set);
-    struct timeval timeout = {0, 1000*30};
-    if (select(FD_SETSIZE, &socket_set, NULL, NULL, &timeout) == SOCKET_ERROR) {
-      printf("select failed\n");
-      break;
-    }
-
-    if (FD_ISSET(listener.socket(), &socket_set)) {
-      DataSocket* s = listener.Accept();
-      if (sockets.size() >= kMaxConnections) {
-        delete s;  // sorry, that's all we can take.
-        printf("Connection limit reached   kMaxConnections:%d\n", kMaxConnections);
-      } else {
-        sockets.push_back(s);
-        printf("New connection...\n");
-      }
-    }
+void SendFile(FileSocket* socket, const char* fileName) {
+  if (nullptr == socket || nullptr == fileName) {
+    printf("Error param...\n");
+    return;
   }
 
-  for (SocketArray::iterator i = sockets.begin(); i != sockets.end(); ++i)
-    delete (*i);
-  sockets.clear();
-}
-
-unsigned __stdcall ListenThread(void * pParam) {
-  int port = FILE_SOCKET_PORT;
-  ListeningSocket listener;
-  if (!listener.Create()) {
-    printf("Failed to create server socket\n");
-    return -1;
-  } else if (!listener.Listen(port)) {
-    printf("Failed to listen on server socket\n");
-    return -1;
+  FILE* pFile = fopen(fileName, "rb");
+  if (nullptr == pFile) {
+    printf("Open %s failed, err:%d", fileName, GetLastError());
+    return ;
   }
-
-  printf("Server listening on port %i\n", port);
-
-  ListenInternal(listener);
-
-  printf("Server stop listening\n");
-  listener.Close();
-
-  return 0;
-}
-
-int _tmain(int argc, _TCHAR* argv[])
-{
-  HANDLE handle = (HANDLE)_beginthreadex(nullptr, 0, &ListenThread, nullptr, 0, nullptr);
-
+  char buf[1024] = {0};
+  int read = 0;
+  long total = 0;
+  fseek(pFile,0L,SEEK_END); // 定位到文件末尾
+  long flen = ftell(pFile); // 得到文件大小
+  fseek(pFile,0L,SEEK_SET); // 定位到文件开始
   do 
   {
-    char ch = _getch();
-    if ('q' == ch) {
-      running = false;
-      printf("Server stoping\n");
-    } else {
-      printf("Please input \'q\' to quit\n");
+    read = fread(buf, sizeof(char), sizeof(buf), pFile);
+    if (read > 0) {
+      total += read;
+      socket->Send(buf, read);
+      printf("\rSend %s  %.1f%%", fileName, total*100.0/flen);
     }
-  } while (running);
+  } while (read > 0);
+  printf("\n");
 
-  WaitForSingleObject(handle, 1000*3);
+  if (nullptr != pFile)
+    fclose(pFile);
+}
+
+#define FILE_SOCKET_SERVER      "192.168.0.113"
+int _tmain(int argc, _TCHAR* argv[])
+{
+  FileSocket* socket = FileSocket::Connect(FILE_SOCKET_SERVER, FILE_SOCKET_PORT);
+  if (nullptr == socket)
+    printf("Connect %s:%d failed, err:%d\n", FILE_SOCKET_SERVER, FILE_SOCKET_PORT, WSAGetLastError());
+  else {
+    // Test Send File
+    printf("Connect %s:%d, start sending file\n", FILE_SOCKET_SERVER, FILE_SOCKET_PORT);
+
+    SendFile(socket, "e:\\ffmpeg.dec.yuv");
+
+    Sleep(1*1000);
+
+    socket->Close();
+    delete socket;
+  }
 
   system("pause");
 	return 0;
