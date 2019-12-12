@@ -53,7 +53,7 @@ void ListenInternal(ListeningSocket& listener) {
     }
 
     if (FD_ISSET(listener.socket(), &socket_set)) {
-      FileSocket* s = listener.Accept();
+      FileSocket* s = listener.AcceptFile();
       if (sockets.size() >= kMaxConnections) {
         delete s;  // sorry, that's all we can take.
         printf("Connection limit reached   kMaxConnections:%d\n", kMaxConnections);

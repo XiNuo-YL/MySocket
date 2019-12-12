@@ -78,7 +78,7 @@ bool ListeningSocket::Listen(unsigned short port) {
   return listen(socket_, 5) != SOCKET_ERROR;
 }
 
-FileSocket* ListeningSocket::Accept() const {
+FileSocket* ListeningSocket::AcceptFile() const {
   assert(valid());
   struct sockaddr_in addr = {0};
   socklen_t size = sizeof(addr);

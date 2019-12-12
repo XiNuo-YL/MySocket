@@ -8,8 +8,8 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#ifndef EXAMPLES_PEERCONNECTION_SERVER_DATA_SOCKET_H_
-#define EXAMPLES_PEERCONNECTION_SERVER_DATA_SOCKET_H_
+#ifndef _DATA_SOCKET_H_
+#define _DATA_SOCKET_H_
 
 #ifdef WIN32
 #include <winsock2.h>
@@ -76,7 +76,7 @@ class ListeningSocket : public SocketBase {
   ListeningSocket() {}
 
   bool Listen(unsigned short port);
-  FileSocket* Accept() const;
+  FileSocket* AcceptFile() const;
 };
 
-#endif  // EXAMPLES_PEERCONNECTION_SERVER_DATA_SOCKET_H_
+#endif  // _DATA_SOCKET_H_
