@@ -1,5 +1,5 @@
-#ifndef com_android_log_print_h
-#define com_android_log_print_h
+#ifndef _MY_LOH_H_
+#define _MY_LOH_H_
 
 #include <android/log.h>
 #include <iostream>
@@ -42,7 +42,7 @@ inline void logOut(const char* file, const char* func, int line, int level, cons
 
   va_end(args);
 
-  __android_log_print(level, "MysherCamera", "%s_%d(%s):%s\n", file, line, func, buf);
+  __android_log_print(level, "MySocker", "%s_%d(%s):%s\n", file, line, func, buf);
 }
 
-#endif
+#endif // _MY_LOH_H_

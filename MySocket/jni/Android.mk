@@ -11,6 +11,8 @@ include $(CLEAR_VARS)
 LOCAL_MODULE    := libmysocket
 
 LOCAL_SRC_FILES :=libmysocket_jni.cpp\
+MySocketApi.cpp \
+../socket/data_socket.cc \
 
 LOCAL_CFLAGS := -std=c++11
 

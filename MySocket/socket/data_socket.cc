@@ -15,11 +15,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef WIN32
 #include <assert.h>
+
+#ifdef WIN32
 #pragma comment(lib, "ws2_32.lib")
 #else
 #include <unistd.h> // POSIX
+#include <arpa/inet.h>
 #endif
 
 static const char kHeaderTerminator[] = "\r\n\r\n";
@@ -93,7 +95,11 @@ FileSocket* ListeningSocket::AcceptFile() const {
 FileSocket* FileSocket::Connect(const char* ip, unsigned short port) {
 
   struct sockaddr_in server_addr = {0};
+#ifdef WIN32
   server_addr.sin_addr.S_un.S_addr=inet_addr(ip);
+#else
+  server_addr.sin_addr.s_addr = inet_addr(ip);
+#endif
   server_addr.sin_family = AF_INET;
   server_addr.sin_port = htons(port);
 

@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MySocketClient", "MySocketClient\MySocketClient.vcxproj", "{3217ECB5-1665-4865-9F54-62FDBF3BE080}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MySocket_JNI_vs2010", "MySocket_JNI_vs2010\MySocket_JNI_vs2010.vcxproj", "{7ABC7A64-0A00-454A-9ADD-FF70D22FE9B0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -13,6 +15,10 @@ Global
 		{3217ECB5-1665-4865-9F54-62FDBF3BE080}.Debug|Win32.Build.0 = Debug|Win32
 		{3217ECB5-1665-4865-9F54-62FDBF3BE080}.Release|Win32.ActiveCfg = Release|Win32
 		{3217ECB5-1665-4865-9F54-62FDBF3BE080}.Release|Win32.Build.0 = Release|Win32
+		{7ABC7A64-0A00-454A-9ADD-FF70D22FE9B0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7ABC7A64-0A00-454A-9ADD-FF70D22FE9B0}.Debug|Win32.Build.0 = Debug|Win32
+		{7ABC7A64-0A00-454A-9ADD-FF70D22FE9B0}.Release|Win32.ActiveCfg = Release|Win32
+		{7ABC7A64-0A00-454A-9ADD-FF70D22FE9B0}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

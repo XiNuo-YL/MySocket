@@ -17,6 +17,7 @@
 #include <errno.h>
 
 #include "mylog.h"
+#include "MySocketApi.h"
 
 #define MYSOCKET_VERSION   "V1.0.1"
 
@@ -51,3 +52,15 @@ JNI_EXPORT jstring JNICALL Java_com_mysocket_GetVersion(JNIEnv *env, jobject) {
   return JavaStringFromStdString(env, MYSOCKET_VERSION);
 }
 
+JNI_EXPORT jlong JNICALL Java_com_mysocket_ConnectServer(JNIEnv *env, jobject, jstring jip, jint jport) {
+  const char *ip = env->GetStringUTFChars(jip, 0);
+  LogOut(DEBUG, "ip:%s   jport:%d", ip, jport);
+  void* client = CreateSocketClient(ip, jport);
+  env->ReleaseStringUTFChars(jip, ip);
+
+  return reinterpret_cast<intptr_t>(client);
+}
+
+JNI_EXPORT jint JNICALL Java_com_mysocket_DisconnectServer(JNIEnv *env, jobject, jlong nativaClient) {
+  return DeleteSocketClient(reinterpret_cast<void*>(nativaClient));
+}
