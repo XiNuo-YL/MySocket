@@ -17,6 +17,7 @@ bool running = true;
 void ListenInternal(ListeningSocket& listener) {
   SocketArray sockets;
 
+  SOCKET_DATA data = {0};
   while (running) {
     fd_set socket_set;
     FD_ZERO(&socket_set);
@@ -34,8 +35,51 @@ void ListenInternal(ListeningSocket& listener) {
       FileSocket* s = *i;
       bool socket_done = true;
       if (FD_ISSET(s->socket(), &socket_set)) {
-        if (s->OnDataAvailable(&socket_done)) {
-          
+        memset(&data, 0, sizeof(data));
+        if (s->RecvSocketData(&socket_done, data)) {
+          printf("OnDataAvailable:ver:%x, type:%x, msg:%d, size:%d\n", data.ver, data.type, data.msg, data.size);
+          if (DATA_FILE == data.type) {
+            long fileSize = 0;
+            if (FILE_SYNC == data.msg) {
+              char* buf = (char*)data.data;
+              fileSize = atol((const char*)data.data);
+            }
+            if (FILE_PULL == data.msg) {
+              printf("DATA_FILE->FILE_PULL, now sending file to client...\n");
+              s->SendFile("E:\\1.2");
+            } else if (FILE_SYNC == data.msg) {
+              SOCKET_DATA data = {0};
+              FILE* pFile = fopen("E:\\3.4", "wb");
+              int totalSize = 0;
+              bool ret = false;
+              bool close = false;
+              do
+              {
+                ret = s->RecvFileData(&close, data);
+
+                printf("\rRecvFileData:%d  close:%d  %.1f%%", ret, close, totalSize*100.0/fileSize);
+
+                if (ret) {
+                  totalSize += data.size;
+                  fwrite(data.data, data.size, 1, pFile);
+                }
+                if (totalSize >= fileSize)
+                  break;
+              } while (ret && !close);
+
+              printf("\nRecvFileData:%d  close:%d  totalSize:%d\n", ret, close, totalSize);
+              fclose(pFile);
+
+              Sleep(5791);
+
+              memset(&data, 0, sizeof(data));
+              data.ver = DATA_VER;
+              data.type = DATA_FILE;
+              data.msg = FILE_PULL;
+              data.size = 0;
+              s->Send((const char*)&data, HEAD_SIZE + data.size);
+            }
+          }
         }
       } else {
         socket_done = false;

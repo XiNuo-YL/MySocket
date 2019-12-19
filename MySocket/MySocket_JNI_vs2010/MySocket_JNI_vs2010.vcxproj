@@ -58,6 +58,9 @@
     <PreBuildEvent>
       <Command>cd ../jni &amp;&amp; ndk-build</Command>
     </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>copy E:\work\XiNuo-YL\MySocket\MySocket\libs\armeabi  E:\work\WORKING\Demo\MzCamera2\app\src\main\jniLibs\armeabi\ /y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

@@ -103,15 +103,19 @@ FileSocket* FileSocket::Connect(const char* ip, unsigned short port) {
   server_addr.sin_family = AF_INET;
   server_addr.sin_port = htons(port);
 
-  int m_iRecvTimeOut = 1000;
-
   int nSocket = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
   if (INVALID_SOCKET == nSocket) {
       return nullptr;
   }
-
-  int ret = setsockopt(nSocket, SOL_SOCKET, SO_RCVTIMEO, (char *)&m_iRecvTimeOut, sizeof(m_iRecvTimeOut));
+#ifdef WIN32
+  int m_iRecvTimeOut = 1000; // ms
+  setsockopt(nSocket, SOL_SOCKET, SO_RCVTIMEO, (char *)&m_iRecvTimeOut, sizeof(m_iRecvTimeOut));
+#else
+  struct timeval timeout = {1,0}; // {s, microseconds}
+  setsockopt(nSocket, SOL_SOCKET, SO_SNDTIMEO, (char*)&timeout, sizeof(struct timeval));
+  setsockopt(nSocket, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(struct timeval));
+#endif
 
   if (connect(nSocket, (struct sockaddr *)(&server_addr), sizeof(struct sockaddr)) == -1) 
   {
@@ -154,4 +158,78 @@ bool FileSocket::OnDataAvailable(bool* close_socket) {
 
 bool FileSocket::Send(const char* buf, int len) const {
   return send(socket_, buf, len, 0) != SOCKET_ERROR;
+}
+
+bool FileSocket::SendFile(const char* fileName) {
+  if (nullptr == fileName)
+    return false;
+
+  FILE* pFile = fopen(fileName, "rb");
+  if (nullptr == pFile)
+    return false;
+
+  int read = 0;
+  long total = 0;
+  fseek(pFile,0L,SEEK_END); // 定位到文件末尾
+  long flen = ftell(pFile); // 得到文件大小
+  fseek(pFile,0L,SEEK_SET); // 定位到文件开始
+
+  SOCKET_DATA data = {0};
+
+  do
+  {
+    read = fread(data.data, sizeof(BYTE), sizeof(data.data), pFile);
+    if (read > 0) {
+      total += read;
+      /*if (!Send((const char*)&data, read+HEAD_SIZE))
+        break;*/
+      if (!Send((const char*)data.data, read))
+        break;
+      printf("\rSend %s  %.1f%%", fileName, total*100.0/flen);
+/*
+#define WAIT_TIME 10
+#ifdef WIN32
+      Sleep(WAIT_TIME);
+#else
+      usleep(WAIT_TIME*1000);
+#endif*/
+    }
+  } while (read > 0);
+  printf("\n");
+
+
+  fclose(pFile);
+  return true;
+}
+
+bool FileSocket::RecvSocketData(bool* close_socket, SOCKET_DATA& data) {
+  assert(valid());
+  int bytes = recv(socket_, (char*)&data, sizeof(data), 0);
+
+  printf("RecvSocketData   bytes:%d\n", bytes);
+
+  if (bytes == SOCKET_ERROR || bytes == 0) {
+    *close_socket = true;
+    return false;
+  }
+
+  *close_socket = false;
+
+  return true;
+}
+
+bool FileSocket::RecvFileData(bool* close_socket, SOCKET_DATA& data) {
+  assert(valid());
+  int bytes = recv(socket_, (char*)data.data, sizeof(data.data), 0);
+
+  if (bytes == SOCKET_ERROR || bytes == 0) {
+    *close_socket = true;
+    return false;
+  }
+
+  data.size = bytes;
+
+  *close_socket = false;
+
+  return true;
 }

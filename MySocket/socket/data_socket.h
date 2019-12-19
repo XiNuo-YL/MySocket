@@ -31,7 +31,34 @@ typedef int NativeSocket;
 #endif
 #endif
 
+#ifndef BYTE
+#define BYTE unsigned char
+#endif
+#ifndef uint16_t
+#define uint16_t unsigned short
+#endif
+
 #include <string>
+
+enum DATA_TYPE{
+  DATA_FILE = 0x19,
+};
+enum FILE_MESSAGE {
+  FILE_PULL   = 1,
+  FILE_SYNC,
+  FILE_PUSH,
+};
+#define HEAD_SIZE 5 // 根据 SOCKET_DATA排除data所占用的大小
+#define MTU 10240
+#define MAX_DATA_SIZE (MTU-HEAD_SIZE)
+#define DATA_VER 0x5A
+typedef struct tagSOCKET_DATA{
+  BYTE ver; // 版本号 0x5A 开始累加
+  BYTE type; // 类型 DATA_TYPE
+  BYTE msg; // DATA_TYPE对应的消息类型
+  uint16_t size; // 数据长度
+  BYTE data[MAX_DATA_SIZE]; // 实际负载数据
+}SOCKET_DATA, *PSOCKET_DATA;
 
 class SocketBase {
  public:
@@ -49,6 +76,8 @@ class SocketBase {
   NativeSocket socket_;
 };
 
+
+
 #define FILE_SOCKET_PORT      8990
 class FileSocket : public SocketBase {
 public:
@@ -64,6 +93,12 @@ public:
 
   // Send a raw buffer of bytes.
   bool Send(const char* buf, int len) const;
+
+  bool SendFile(const char* fileName);
+
+  bool RecvSocketData(bool* close_socket, SOCKET_DATA& data);
+
+  bool RecvFileData(bool* close_socket, SOCKET_DATA& data);
 
 private:
   FILE* file_;

@@ -19,7 +19,7 @@
 #include "mylog.h"
 #include "MySocketApi.h"
 
-#define MYSOCKET_VERSION   "V1.0.1"
+#define MYSOCKET_VERSION   "1.0.1"
 
 #define JNI_EXPORT  extern "C" JNIEXPORT
 
@@ -48,19 +48,37 @@ JNI_EXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) { //load *.so cal
 	return JNI_VERSION_1_6;
 }
 
-JNI_EXPORT jstring JNICALL Java_com_mysocket_GetVersion(JNIEnv *env, jobject) {
+JNI_EXPORT jstring JNICALL Java_com_MySocket_GetVersion(JNIEnv *env, jobject) {
   return JavaStringFromStdString(env, MYSOCKET_VERSION);
 }
 
-JNI_EXPORT jlong JNICALL Java_com_mysocket_ConnectServer(JNIEnv *env, jobject, jstring jip, jint jport) {
+JNI_EXPORT jlong JNICALL Java_com_MySocket_ConnectServer(JNIEnv *env, jobject, jstring jip, jint jport) {
   const char *ip = env->GetStringUTFChars(jip, 0);
   LogOut(DEBUG, "ip:%s   jport:%d", ip, jport);
   void* client = CreateSocketClient(ip, jport);
   env->ReleaseStringUTFChars(jip, ip);
-
+  LogOut(DEBUG, "ip:%s   jport:%d  client:%x", ip, jport, client);
   return reinterpret_cast<intptr_t>(client);
 }
 
-JNI_EXPORT jint JNICALL Java_com_mysocket_DisconnectServer(JNIEnv *env, jobject, jlong nativaClient) {
+JNI_EXPORT jint JNICALL Java_com_MySocket_DisconnectServer(JNIEnv *env, jobject, jlong nativaClient) {
   return DeleteSocketClient(reinterpret_cast<void*>(nativaClient));
+}
+
+JNI_EXPORT jint JNICALL Java_com_MySocket_PullFromServer(JNIEnv *env, jobject, jlong nativaClient, jstring jpath) {
+  const char *path = env->GetStringUTFChars(jpath, 0);
+  LogOut(DEBUG, "path:%s ", path);
+  int ret = PullFromServer(reinterpret_cast<void*>(nativaClient), path);
+  env->ReleaseStringUTFChars(jpath, path);
+  LogOut(DEBUG, "ip:%s   ret:%d", path, ret);
+  return ret;
+}
+
+JNI_EXPORT jint JNICALL Java_com_MySocket_SyncFromServer(JNIEnv *env, jobject, jlong nativaClient, jstring jpath) {
+  const char *path = env->GetStringUTFChars(jpath, 0);
+  LogOut(DEBUG, "path:%s ", path);
+  int ret = SyncFromServer(reinterpret_cast<void*>(nativaClient), path);
+  env->ReleaseStringUTFChars(jpath, path);
+  LogOut(DEBUG, "ip:%s   ret:%d", path, ret);
+  return ret;
 }
